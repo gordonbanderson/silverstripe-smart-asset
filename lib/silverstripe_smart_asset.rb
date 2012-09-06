@@ -182,12 +182,14 @@ puts "EXTENSION:#{extension}"
             puts "\nCreating #{package}..."
             if ext == 'js'
               warning = ENV['WARN'] ? nil : " --warning_level QUIET"
-              cmd = "java -jar #{CLOSURE_COMPILER} --js #{tmp} --js_output_file #{package}#{warning}"
+              # Test uglify instead of closure
+              cmd = "uglify -nc #{tmp} > #{package}"
+              #cmd = "java -jar #{CLOSURE_COMPILER} --js #{tmp} --js_output_file #{package}#{warning}"
             elsif ext == 'css'
               warning = ENV['WARN'] ? " -v" : nil
               cmd = "java -jar #{YUI_COMPRESSOR} #{tmp} -o #{package}#{warning}"
             end
-            puts cmd if ENV['DEBUG']
+            puts cmd # if ENV['DEBUG']
             `#{cmd}`
             FileUtils.rm(tmp) unless ENV['DEBUG']
 
