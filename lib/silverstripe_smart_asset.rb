@@ -13,13 +13,13 @@ require 'silverstripe_smart_asset/version'
 
 class SilverstripeSmartAsset
   class <<self
-    
+
     attr_accessor :append_random,:prefix, :asset_host, :asset_counter, :cache, :config, :dest, :env, :envs, :pub, :root, :sources
-    
+
     BIN = File.expand_path(File.dirname(__FILE__) + '/../bin')
     CLOSURE_COMPILER = BIN + '/closure_compiler.jar'
     YUI_COMPRESSOR = BIN + '/yui_compressor.jar'
-    
+
     def binary(root, relative_config=nil)
       load_config root, relative_config
       compress 'javascripts'
@@ -31,16 +31,16 @@ class SilverstripeSmartAsset
     def save_template(le_type, package)
       puts "+++++++++++++++SAVING #{package} of type #{le_type}"
 
-          parts = package.split('_package_')
-          name = parts[-1]
-          filename = package.split('/')[-1]
+      parts = package.split('_package_')
+      name = parts[-1]
+      filename = package.split('/')[-1]
 
-          capname = name[0].chr.upcase+name[1, name.length-1]
+      capname = name[0].chr.upcase+name[1, name.length-1]
 
       if le_type == :css
         savefile = '/templates/Includes/Prod'+capname+"_#{le_type}.ss"
         template = "<link href=\"#{@prefix}/css/packaged/#{filename}\" rel=\"stylesheet\" type=\"text/css\" />"
-      
+
       else
         savefile = '/templates/Includes/Prod'+capname+"_#{le_type}.ss"
         template = "<script type=\"text/javascript\" src=\"#{@prefix}/javascript/packaged/#{filename}\"></script> "
@@ -57,34 +57,34 @@ class SilverstripeSmartAsset
 
 
       puts "TO BE SAVED IN #{savefile}"
-      
+
       aFile = File.new(savefile, "w")
       aFile.write(template)
       aFile.close
 
 
-=begin
+      =begin
           #/home/gordon/work/git/weboftalent/rotfai/www/railway/themes/rotfai/css/packaged/e600151e_package_public.css
           
 extension = capname.split('.')[-1]
 puts "EXTENSION:#{extension}"
 =end
     end
-    
+
     def compress(type)
       dest = @dest[type]
       dir = "#{@pub}/#{@sources[type]}"
       ext = ext_from_type(type)
       packages = []
       time_cache = {}
-      
+
       FileUtils.mkdir_p dest
-      
+
       (@config[type] || {}).each do |package, files|
         next if ENV['PACKAGE'] && ENV['PACKAGE'] != package
-        
+
         puts "COMPRESSSING #{package}"
-        
+
         if files
           # Retrieve list of Git modified timestamps
           timestamps = []
@@ -110,13 +110,13 @@ puts "EXTENSION:#{extension}"
             end
           end
           next if timestamps.empty?
-          
+
           # Modified hash
           hash = Digest::SHA1.hexdigest(timestamps.join)[0..7]
-          
+
           # Package path
           package = "#{dest}/#{hash}_#{package}.#{ext}"
-          
+
           # If package file exists
           if File.exists?(package)
             packages << package
@@ -124,7 +124,7 @@ puts "EXTENSION:#{extension}"
             data = []
 
             dev_template = ""
-            
+
             # Join files in package
             files.each do |file|
               if File.exists?(source = "#{dir}/#{file}.#{ext}")
@@ -143,39 +143,39 @@ puts "EXTENSION:#{extension}"
 
             puts "PACKAGE:#{package}"
 
-          dev_template.gsub!(Dir.pwd, '')
-          dev_template.gsub!('//','')
-          dev_template.gsub!('//','')
+            dev_template.gsub!(Dir.pwd, '')
+            dev_template.gsub!('//','')
+            dev_template.gsub!('//','')
 
-          parts = package.split('_package_')
-          name = parts[-1]
-          filename = package.split('/')[-1]
-          
-          puts "NAME:#{name}"
-          puts "FILENAME:#{filename}"
-          
-          capname = name[0].chr.upcase+name[1, name.length-1]
-capname.gsub!('.js', '')
-          capname.gsub!('.css', '')
-capname = capname.split('/')[-1]
-puts "CAPNAME:#{capname}"
-          
-savefile = Dir.pwd+"/templates/Includes/Dev#{capname}_#{ext}.ss"
+            parts = package.split('_package_')
+            name = parts[-1]
+            filename = package.split('/')[-1]
 
-puts "SAVEFILE T2:#{savefile}"
+            puts "NAME:#{name}"
+            puts "FILENAME:#{filename}"
+
+            capname = name[0].chr.upcase+name[1, name.length-1]
+            capname.gsub!('.js', '')
+            capname.gsub!('.css', '')
+            capname = capname.split('/')[-1]
+            puts "CAPNAME:#{capname}"
+
+            savefile = Dir.pwd+"/templates/Includes/Dev#{capname}_#{ext}.ss"
+
+            puts "SAVEFILE T2:#{savefile}"
 
             aFile = File.new(savefile, "w")
             aFile.write(dev_template)
             aFile.close
 
-          puts "DEV TEMPLATE"
-puts dev_template
-puts "\n\n\n\n"
-            
+            puts "DEV TEMPLATE"
+            puts dev_template
+            puts "\n\n\n\n"
+
             # Don't create new compressed file if no data
             data = data.join("\n")
             next if data.strip.empty?
-            
+
             # Compress joined files
             tmp = "#{dest}/tmp.#{ext}"
             File.open(tmp, 'w') { |f| f.write(data) }
@@ -193,7 +193,7 @@ puts "\n\n\n\n"
 
 
             save_template(ext.to_sym, package)
-            
+
             # Fix YUI compression issue
             if ext == 'css'
               if RUBY_PLATFORM.downcase.include?('darwin')
