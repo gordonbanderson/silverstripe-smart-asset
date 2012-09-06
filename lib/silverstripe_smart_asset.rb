@@ -63,12 +63,6 @@ class SilverstripeSmartAsset
       aFile.close
 
 
-      =begin
-          #/home/gordon/work/git/weboftalent/rotfai/www/railway/themes/rotfai/css/packaged/e600151e_package_public.css
-          
-extension = capname.split('.')[-1]
-puts "EXTENSION:#{extension}"
-=end
     end
 
     def compress(type)
@@ -183,13 +177,13 @@ puts "EXTENSION:#{extension}"
             if ext == 'js'
               warning = ENV['WARN'] ? nil : " --warning_level QUIET"
               # Test uglify instead of closure
-              cmd = "uglify -nc #{tmp} > #{package}"
+              cmd = "uglifyjs -nc #{tmp} > #{package}"
               #cmd = "java -jar #{CLOSURE_COMPILER} --js #{tmp} --js_output_file #{package}#{warning}"
             elsif ext == 'css'
               warning = ENV['WARN'] ? " -v" : nil
               cmd = "java -jar #{YUI_COMPRESSOR} #{tmp} -o #{package}#{warning}"
             end
-            puts cmd # if ENV['DEBUG']
+            puts cmd if ENV['DEBUG']
             `#{cmd}`
             FileUtils.rm(tmp) unless ENV['DEBUG']
 
